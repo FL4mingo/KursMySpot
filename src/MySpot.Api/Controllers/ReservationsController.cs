@@ -12,23 +12,21 @@ namespace MySpot.Api.Controllers;
 [ApiController]
 public class ReservationsController : ControllerBase
 {
-    private static readonly Clock Clock = new();
-    private static readonly ReservationService _service = new( new List<WeeklyParkingSpot>()
+    private readonly IReservationService _reservationService;
+
+    public ReservationsController(IReservationService reservationService)
     {
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000001"), new Week(Clock.Current()),  "P1"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000002"), new Week(Clock.Current()), "P2"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000003"), new Week(Clock.Current()), "P3"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000004"), new Week(Clock.Current()), "P4"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000005"), new Week(Clock.Current()), "P5")
-    });
+        
+        _reservationService = reservationService;
+    }
 
     [HttpGet]
-    public ActionResult<IEnumerable<ReservationDto>> Get() => Ok(_service.GetAllWeekly());
+    public ActionResult<IEnumerable<ReservationDto>> Get() => Ok(_reservationService.GetAllWeekly());
 
     [HttpGet("{id:Guid}")]
     public ActionResult<ReservationDto> Get(Guid id)
     {
-        var reservation = _service.Get(id);
+        var reservation = _reservationService.Get(id);
         if(reservation is null) return NotFound();
 
         return Ok(reservation);
@@ -38,7 +36,7 @@ public class ReservationsController : ControllerBase
     public ActionResult Post(CreateReservation command)
     {
 
-        var id = _service.Create(command with {ReservationId = Guid.NewGuid() });
+        var id = _reservationService.Create(command with {ReservationId = Guid.NewGuid() });
         if(id is null) return BadRequest();
 
         return CreatedAtAction(nameof(Get), new {id}, null);
@@ -49,7 +47,7 @@ public class ReservationsController : ControllerBase
     public ActionResult Put(Guid id, ChangeReservationLicensePlate command)
     {
 
-        if(_service.Update(command with { ReservationId = id})) return NoContent();
+        if(_reservationService.Update(command with { ReservationId = id})) return NoContent();
 
         return NotFound();
     }
@@ -58,7 +56,7 @@ public class ReservationsController : ControllerBase
     public ActionResult Delete(Guid id)
     {
 
-        if (_service.Delete(new DeleteReservation(id))) return NoContent();
+        if (_reservationService.Delete(new DeleteReservation(id))) return NoContent();
 
         return NotFound();
     }
