@@ -1,5 +1,5 @@
 @url = http://localhost:5000
-@reservationId = 36111cf3-9c50-409a-9fd9-279ccf095d66
+@reservationId = f8fde7e8-c1b3-43ad-bdd3-9b28b291546a
 @parkingSpotId = 00000000-0000-0000-0000-000000000001
 
 ###
@@ -27,7 +27,7 @@ PUT {{url}}/reservations/{{reservationId}}
 Content-Type: application/json
 
 {
-  "licensePlate" : "XYZ124"
+  "licensePlate" : "ZZZ124"
 }
 
 
